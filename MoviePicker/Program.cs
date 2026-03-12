@@ -1,7 +1,15 @@
+using MoviePicker.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+var tmdbApiKey = builder.Configuration["TMDB:ApiKey"];
+builder.Services.AddHttpClient<MovieService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.themoviedb.org/3/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
 var app = builder.Build();
 
