@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MoviePicker.Models;
 using MoviePicker.Services;
 
 namespace MoviePicker.Controllers
@@ -13,14 +14,17 @@ namespace MoviePicker.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            return View(new MovieFilterViewModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(string genreId)
+        public async Task<IActionResult> Index(MovieFilterViewModel filters)
         {
-            var movies = await _movieService.GetMoviesAsync(genreId);
-            return View("~/Views/Movie/Results.cshtml", movies);
+            filters.Movies = await _movieService.GetMoviesAsync(filters.SelectedGenres, 
+                filters.MinRating, 
+                filters.YearFrom, 
+                filters.SortBy);
+            return View(filters);
         }
     }
 }
