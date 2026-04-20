@@ -13,14 +13,15 @@ namespace MoviePicker.Services
             apiKey = configuration["TMDB:ApiKey"];
         }
 
-        public async Task<List<Movie>> GetMoviesAsync(List<string> genreIds, string minRating, string yearFrom, string sortBy)
+        public async Task<List<Movie>> GetMoviesAsync(List<string> genreIds, string minRating, string yearFrom, string sortBy, int page = 1)
         {
             string genres = string.Join(",", genreIds);
             string endpoint = $"discover/movie?api_key={apiKey}"+
                 $"&with_genres={genres}"+
                 $"&vote_average.gte={minRating}"+
                 $"&sort_by={sortBy}"+
-                $"&vote_count.gte=5000"; //minimalno 5000 ocjena
+                $"&vote_count.gte=2000"+ //minimalno 5000 ocjena
+                $"&page={page}";
 
             if (!string.IsNullOrEmpty(yearFrom))
                 endpoint += $"&primary_release_date.gte={yearFrom}-01-01";

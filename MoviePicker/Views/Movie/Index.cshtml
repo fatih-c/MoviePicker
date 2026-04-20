@@ -6,7 +6,7 @@
 
 <h2>Movie Picker</h2>
 
-<form method="post">
+<form method="post" action="/Movie/Index">
     <label>
         <input type="checkbox" name="SelectedGenres" value="28"
                checked="@(Model.SelectedGenres.Contains("28"))" /> Action
@@ -63,6 +63,8 @@
 
     <br /><br />
     <button type="submit">Find Movies</button>
+
+    <button type="submit" asp-action="Swipe" asp-controller="Movie">Swipe Movies</button> 
 
 </form>
 
