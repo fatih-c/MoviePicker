@@ -1,4 +1,6 @@
 using MoviePicker.Services;
+using MoviePicker.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,9 @@ builder.Services.AddHttpClient<MovieService>(client =>
     client.BaseAddress = new Uri("https://api.themoviedb.org/3/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
