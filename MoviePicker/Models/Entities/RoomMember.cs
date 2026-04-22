@@ -7,6 +7,7 @@
         public string Name { get; set; }
         public DateTime JoinedAt { get; set; }
         public bool HasFinished { get; set; }
+        public bool IsCreator { get; set; }
 
         // Navigation properties
         public Room Room { get; set; }

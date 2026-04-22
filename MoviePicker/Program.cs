@@ -1,6 +1,7 @@
-using MoviePicker.Services;
-using MoviePicker.Data;
 using Microsoft.EntityFrameworkCore;
+using MoviePicker.Data;
+using MoviePicker.Hubs;
+using MoviePicker.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +17,16 @@ builder.Services.AddHttpClient<MovieService>(client =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<RoomService>();
+builder.Services.AddSession();
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
+
+app.MapHub<RoomHub>("/roomHub");
+
+app.UseSession();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

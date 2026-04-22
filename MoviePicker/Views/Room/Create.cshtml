@@ -1,0 +1,9 @@
+﻿@model MoviePicker.Models.CreateRoomViewModel
+
+<div class="room-page">
+    <h2>Create Room</h2>
+    <form asp-action="Create" asp-controller="Room" method="post">
+        <input asp-for="CreatorName" placeholder="Your name" />
+        <button type="submit">Create Room</button>
+    </form>
+</div>

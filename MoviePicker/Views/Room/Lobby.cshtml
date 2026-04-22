@@ -1,0 +1,68 @@
+﻿@model MoviePicker.Models.Entities.Room
+
+<div class="room-page">
+    <h2>Room Code: <strong>@Model.Code</strong></h2>
+    <p>Share this code with your friends</p>
+
+    <h3>Members</h3>
+    <ul id="members-list">
+        @foreach (var member in Model.Members)
+        {
+            <li>@member.Name @(member.IsCreator ? "(Creator)" : "")</li>
+        }
+    </ul>
+
+    @if (ViewBag.IsCreator)
+    {
+        <hr />
+        <h3>Set Filters</h3>
+        <form asp-action="SaveFilters" asp-controller="Room" method="post">
+            <input type="hidden" name="code" value="@Model.Code" />
+            @await Html.PartialAsync("_FilterForm", new MoviePicker.Models.MovieFilterViewModel())
+            <br /><br />
+            <button type="submit">Save Filters</button>
+        </form>
+
+        <form asp-action="Start" asp-controller="Room" method="post">
+            <input type="hidden" name="code" value="@Model.Code" />
+            <button type="submit">Start Swiping</button>
+        </form>
+    }
+    else
+    {
+        <p id="waiting-msg">Waiting for creator to start...</p>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const roomCode = "@Model.Code";
+        const isCreator = @Json.Serialize((bool)ViewBag.IsCreator);
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/roomHub")
+            .build();
+
+        connection.on("MemberJoined", function(memberName) {
+            const li = document.createElement("li");
+            li.textContent = memberName;
+            document.getElementById("members-list").appendChild(li);
+        });
+
+        connection.on("GameStarted", function(code) {
+            window.location.href = "/Room/Swipe?code=" + code;
+        });
+
+        connection.start()
+            .then(function() {
+                console.log("SignalR connected!");
+                return connection.invoke("JoinRoomGroup", roomCode);
+            })
+            .then(function() {
+                console.log("Joined room group: " + roomCode);
+            })
+            .catch(function(err) {
+                console.error("SignalR error: ", err);
+            });
+    </script>
+}

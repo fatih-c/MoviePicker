@@ -1,0 +1,14 @@
+﻿@model MoviePicker.Models.JoinRoomViewModel
+
+<div class="room-page">
+    <h2>Join Room</h2>
+    @if (Model.ErrorMessage != null)
+    {
+        <p class="error">@Model.ErrorMessage</p>
+    }
+    <form asp-action="Join" asp-controller="Room" method="post">
+        <input asp-for="Code" placeholder="Room code" />
+        <input asp-for="Name" placeholder="Your name" />
+        <button type="submit">Join Room</button>
+    </form>
+</div>

@@ -7,65 +7,10 @@
 <h2>Movie Picker</h2>
 
 <form method="post" action="/Movie/Index">
-    <label>
-        <input type="checkbox" name="SelectedGenres" value="28"
-               checked="@(Model.SelectedGenres.Contains("28"))" /> Action
-    </label>
-    <label>
-        <input type="checkbox" name="SelectedGenres" value="35"
-               checked="@(Model.SelectedGenres.Contains("35"))" /> Comedy
-    </label>
-    <label>
-        <input type="checkbox" name="SelectedGenres" value="27"
-               checked="@(Model.SelectedGenres.Contains("27"))" /> Horror
-    </label>
-    <label>
-        <input type="checkbox" name="SelectedGenres" value="10749"
-               checked="@(Model.SelectedGenres.Contains("10749"))" /> Romance
-    </label>
-    <label>
-        <input type="checkbox" name="SelectedGenres" value="878"
-               checked="@(Model.SelectedGenres.Contains("878"))" /> Sci-Fi
-    </label>
-    <label>
-        <input type="checkbox" name="SelectedGenres" value="18"
-               checked="@(Model.SelectedGenres.Contains("18"))" /> Drama
-    </label>
-    <label>
-        <input type="checkbox" name="SelectedGenres" value="16"
-               checked="@(Model.SelectedGenres.Contains("16"))" /> Animation
-    </label>
-    <label>
-        <input type="checkbox" name="SelectedGenres" value="53"
-               checked="@(Model.SelectedGenres.Contains("53"))" /> Thriller
-    </label>
-
-    <select name="MinRating">
-        <option value="0">Any</option>
-        <option value="6" selected="@(Model.MinRating == "6")">6+</option>
-        <option value="7" selected="@(Model.MinRating == "7")">7+</option>
-        <option value="8" selected="@(Model.MinRating == "8")">8+</option>
-    </select>
-
-    <select name="YearFrom">
-        <option value="">Any</option>
-        <option value="2020" selected="@(Model.YearFrom == "2020")">2020s</option>
-        <option value="2010" selected="@(Model.YearFrom == "2010")">2010s</option>
-        <option value="2000" selected="@(Model.YearFrom == "2000")">2000s</option>
-        <option value="1990" selected="@(Model.YearFrom == "1990")">1990s</option>
-    </select>
-
-    <select name="SortBy">
-        <option value="popularity.desc" selected="@(Model.SortBy == "popularity.desc")">Popularity</option>
-        <option value="vote_average.desc" selected="@(Model.SortBy == "vote_average.desc")">Highest Rated</option>
-        <option value="release_date.desc" selected="@(Model.SortBy == "release_date.desc")">Newest First</option>
-    </select>
-
+    @await Html.PartialAsync("_FilterForm", Model)
     <br /><br />
     <button type="submit">Find Movies</button>
-
-    <button type="submit" asp-action="Swipe" asp-controller="Movie">Swipe Movies</button> 
-
+    <button type="submit" asp-action="Swipe" asp-controller="Movie">Swipe Movies</button>
 </form>
 
 @if (Model.Movies.Any())
