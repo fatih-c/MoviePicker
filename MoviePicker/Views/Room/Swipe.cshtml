@@ -32,6 +32,7 @@
 @section Scripts {
     <script>
         const movies = @Html.Raw(Json.Serialize(ViewBag.Movies));
+        console.log("Movies count:", movies.length);//za testiranje
         const roomCode = "@Model.Code";
         const memberId = @Html.Raw(Json.Serialize(ViewBag.MemberId));
 
@@ -96,6 +97,7 @@
 
         async function finishSwiping() {
             // Tell server this member finished
+            console.log("finishSwiping called for memberId:", memberId);
             await fetch('/Room/FinishSwiping', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

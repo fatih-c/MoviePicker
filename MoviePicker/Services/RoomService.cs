@@ -140,16 +140,37 @@ namespace MoviePicker.Services
 
         public async Task FinishSwipingAsync(int memberId, string roomCode)
         {
-            var member = await _db.RoomMembers.FindAsync(memberId);
-            if (member == null) return;
+            await _db.RoomMembers
+                .Where(m => m.Id == memberId)
+                .ExecuteUpdateAsync(s => s.SetProperty(m => m.HasFinished, true));
+            var unfinishedMembers = await _db.RoomMembers
+    .Where(m => m.Room.Code == roomCode && !m.HasFinished)
+    .Select(m => m.Id)
+    .ToListAsync();
 
-            member.HasFinished = true;
-            await _db.SaveChangesAsync();
+            if (unfinishedMembers.Any())
+            {
+                // OVO ĆE TI REĆI KO TE KOČI
+                Console.WriteLine($"Soba {roomCode}: Čekam na članove sa ID-ovima: {string.Join(", ", unfinishedMembers)}");
+                return;
+            }
 
-            // Check if all members finished
+            var isAnyoneStillSwiping = await _db.RoomMembers
+                .AnyAsync(m => m.Room.Code == roomCode && !m.HasFinished);
+
+            if (isAnyoneStillSwiping) return;
+
+            //await Task.Delay(500);
+            var rowsAffected = await _db.Rooms
+                .Where(r => r.Code == roomCode && r.Status != "Finished")
+                .ExecuteUpdateAsync(s => s.SetProperty(r => r.Status, "Finished"));
+
+            if (rowsAffected == 0) return;
+
             var room = await _db.Rooms
                 .Include(r => r.Members)
                 .ThenInclude(m => m.Swipes)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Code == roomCode);
 
             if (room == null) return;
@@ -157,22 +178,38 @@ namespace MoviePicker.Services
             var allFinished = room.Members.All(m => m.HasFinished);
             if (!allFinished) return;
 
-            // Find movies everyone liked
             var memberCount = room.Members.Count;
             var likedByAll = room.Members
                 .SelectMany(m => m.Swipes)
                 .Where(s => s.Liked)
                 .GroupBy(s => s.MovieId)
                 .Where(g => g.Count() == memberCount)
+                .OrderByDescending(g => g.Count())
                 .Select(g => g.Key)
                 .ToList();
 
-            room.Status = "Finished";
-            await _db.SaveChangesAsync();
+            await _db.Rooms
+                .Where(r => r.Code == roomCode)
+                .ExecuteUpdateAsync(s => s.SetProperty(r => r.Status, "Finished"));
 
-            // Send results to all clients
             await _hubContext.Clients.Group(roomCode)
                 .SendAsync("ShowResults", likedByAll);
+
+            await Task.Delay(5000);
+
+            var memberIds = room.Members.Select(m => m.Id).ToList();
+
+            await _db.MovieSwipes
+                .Where(s => memberIds.Contains(s.RoomMemberId))
+                .ExecuteDeleteAsync();
+
+            await _db.RoomMembers
+                .Where(m => memberIds.Contains(m.Id))
+                .ExecuteDeleteAsync();
+
+            await _db.Rooms
+                .Where(r => r.Code == roomCode)
+                .ExecuteDeleteAsync();
         }
 
     }
