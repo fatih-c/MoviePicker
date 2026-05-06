@@ -20,7 +20,7 @@ namespace MoviePicker.Services
                 $"&with_genres={genres}"+
                 $"&vote_average.gte={minRating}"+
                 $"&sort_by={sortBy}"+
-                $"&vote_count.gte=500"+ //minimalno 5000 ocjena
+                $"&vote_count.gte=1000"+ 
                 $"&page={page}";
 
             if (!string.IsNullOrEmpty(yearFrom))

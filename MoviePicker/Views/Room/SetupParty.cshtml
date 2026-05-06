@@ -1,0 +1,71 @@
+﻿<div class="main-hero text-center py-4">
+    <h2 style="color: var(--khaki-beige); font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">Movie Party</h2>
+    <p class="text-muted">Izaberi način na koji želiš započeti grupno gledanje.</p>
+</div>
+
+<div class="landing-wrapper">
+    <div class="options-container">
+        <a href="@Url.Action("Create", "Room")" class="choice-card mini">
+            <h3>Create Room</h3>
+            <p>Postani domaćin i napravi novu sobu za ekipu</p>
+        </a>
+
+        <a href="@Url.Action("Join", "Room")" class="choice-card mini">
+            <h3>Join Code</h3>
+            <p>Unesi šifru i pridruži se već postojećoj sobi</p>
+        </a>
+    </div>
+
+    <div class="mt-5">
+        <a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">← Nazad na početnu</a>
+    </div>
+</div>
+
+<style>
+    .options-container {
+        display: flex;
+        flex-direction: row; /* Forsira horizontalni raspored */
+        gap: 2rem;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        flex-wrap: nowrap; /* Sprečava prelamanje u novi red na većim ekranima */
+    }
+
+    .choice-card.mini {
+        background: #0b1e2b;
+        border: 2px solid var(--khaki-beige);
+        padding: 2.5rem;
+        border-radius: 20px;
+        width: 320px; /* Fiksna širina da bi stale jedna pored druge */
+        height: 280px;
+        text-decoration: none;
+        color: var(--porcelain);
+        transition: 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+        .choice-card.mini:hover {
+            border-color: var(--flag-red);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .choice-card.mini h3 {
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            color: var(--porcelain);
+        }
+
+        .choice-card.mini p {
+            font-size: 0.95rem;
+            opacity: 0.7;
+            margin: 0;
+            line-height: 1.4;
+        }
+</style>

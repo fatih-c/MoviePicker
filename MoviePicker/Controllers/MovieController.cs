@@ -11,21 +11,41 @@ namespace MoviePicker.Controllers
         {
             _movieService = movieService;
         }
-        public IActionResult Index()
+        /*  public IActionResult Index()
+          {
+              return View(new MovieFilterViewModel());
+          }
+
+          [HttpPost]
+          public async Task<IActionResult> Index(MovieFilterViewModel filters)
+          {
+              filters.Movies = await _movieService.GetMoviesAsync(filters.SelectedGenres, 
+                  filters.MinRating, 
+                  filters.YearFrom, 
+                  filters.SortBy,
+                  filters.Page);
+              return View(filters);
+          }*/
+        [HttpGet("Movie/Solo")]
+        public IActionResult Solo()
         {
             return View(new MovieFilterViewModel());
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Index(MovieFilterViewModel filters)
+        [HttpPost("Movie/Solo")]
+        public async Task<IActionResult> Solo(MovieFilterViewModel filters)
         {
-            filters.Movies = await _movieService.GetMoviesAsync(filters.SelectedGenres, 
-                filters.MinRating, 
-                filters.YearFrom, 
+            // Ako korisnik klikne "Find Movies" (obična lista)
+            filters.Movies = await _movieService.GetMoviesAsync(
+                filters.SelectedGenres,
+                filters.MinRating,
+                filters.YearFrom,
                 filters.SortBy,
                 filters.Page);
+
             return View(filters);
         }
+
         [HttpPost]
         public async Task<IActionResult> Swipe(MovieFilterViewModel filters)
         {

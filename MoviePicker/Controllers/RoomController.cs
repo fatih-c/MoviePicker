@@ -113,6 +113,12 @@ namespace MoviePicker.Controllers
             await _roomService.FinishSwipingAsync(model.MemberId, model.RoomCode);
             return Ok();
         }
+        [HttpGet]
+        public IActionResult SetupParty()
+        {
+            // Ovo samo prikazuje View sa dvije opcije: Create ili Join
+            return View();
+        }
         public async Task<IActionResult> Lobby(string code)
         {
             var room = await _roomService.GetRoomWithMembersAsync(code);

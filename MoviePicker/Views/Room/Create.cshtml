@@ -1,9 +1,78 @@
 ﻿@model MoviePicker.Models.CreateRoomViewModel
 
-<div class="room-page">
-    <h2>Create Room</h2>
-    <form asp-action="Create" asp-controller="Room" method="post">
-        <input asp-for="CreatorName" placeholder="Your name" />
-        <button type="submit">Create Room</button>
-    </form>
+<div class="landing-wrapper">
+    <div class="room-card">
+        <h2 class="mb-4">Create Room</h2>
+        <form asp-action="Create" asp-controller="Room" method="post" class="d-flex flex-column gap-3">
+            <div class="input-group">
+                <input asp-for="CreatorName" class="custom-input" placeholder="Your name" required />
+            </div>
+            <button type="submit" class="btn-custom red w-100">START PARTY</button>
+            <a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none mt-2">← Back</a>
+        </form>
+    </div>
 </div>
+<style>
+    /* Kontejner za formu */
+    .room-card {
+        background: #0b1e2b;
+        border: 2px solid var(--khaki-beige);
+        padding: 3rem;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    /* Moderni tamni inputi */
+    .custom-input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(190, 183, 164, 0.3);
+        border-radius: 10px;
+        padding: 12px 15px;
+        color: var(--porcelain);
+        width: 100%;
+        outline: none;
+        transition: 0.3s;
+    }
+
+        .custom-input:focus {
+            border-color: var(--flag-red);
+            box-shadow: 0 0 10px rgba(197, 7, 32, 0.2);
+        }
+
+        .custom-input.uppercase {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+    /* Greška */
+    .error-msg {
+        color: #ff4d4d;
+        background: rgba(255, 77, 77, 0.1);
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    /* Dugme (ako već nemaš definisano) */
+    .btn-custom.red {
+        background: var(--flag-red);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        transition: 0.3s;
+    }
+
+        .btn-custom.red:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+</style>
+

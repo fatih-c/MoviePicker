@@ -1,0 +1,81 @@
+﻿@model MoviePicker.Models.MovieFilterViewModel
+
+@{
+    ViewData["Title"] = "Solo Search";
+}
+
+<div class="solo-container">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold" style="color: var(--flag-red);">SOLO SEARCH</h2>
+        <p style="color: var(--khaki-beige);">Podesi filtere i pronađi savršen film za sebe.</p>
+    </div>
+
+    <div class="filter-card p-4 p-md-5">
+        <form method="post" action="/Movie/Solo">
+            @await Html.PartialAsync("_FilterForm", Model)
+
+            <div class="d-grid gap-3 mt-5">
+                <button type="submit" class="btn-main">
+                    Find Movies List
+                </button>
+
+                <button type="submit" asp-action="Swipe" asp-controller="Movie" class="btn-outline">
+                    Start Swiping Mode
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-color: #1a222d;
+        --card-bg: #252f3d;
+        --flag-red: #C50720;
+        --khaki-beige: #BEB7A4;
+    }
+
+    .solo-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+
+    .filter-card {
+        background-color: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid rgba(190, 183, 164, 0.1);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+
+    .btn-main {
+        background-color: var(--flag-red);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: 0.3s;
+    }
+
+        .btn-main:hover {
+            transform: scale(1.02);
+            filter: brightness(1.2);
+        }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 2px solid var(--khaki-beige);
+        color: var(--khaki-beige);
+        padding: 15px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: 0.3s;
+    }
+
+        .btn-outline:hover {
+            background-color: var(--khaki-beige);
+            color: var(--bg-color);
+        }
+</style>

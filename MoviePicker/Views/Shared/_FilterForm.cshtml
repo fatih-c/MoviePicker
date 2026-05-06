@@ -1,55 +1,104 @@
 ﻿@model MoviePicker.Models.MovieFilterViewModel
 
-<label>
-    <input type="checkbox" name="SelectedGenres" value="28"
-           checked="@(Model.SelectedGenres.Contains("28"))" /> Action
-</label>
-<label>
-    <input type="checkbox" name="SelectedGenres" value="35"
-           checked="@(Model.SelectedGenres.Contains("35"))" /> Comedy
-</label>
-<label>
-    <input type="checkbox" name="SelectedGenres" value="27"
-           checked="@(Model.SelectedGenres.Contains("27"))" /> Horror
-</label>
-<label>
-    <input type="checkbox" name="SelectedGenres" value="10749"
-           checked="@(Model.SelectedGenres.Contains("10749"))" /> Romance
-</label>
-<label>
-    <input type="checkbox" name="SelectedGenres" value="878"
-           checked="@(Model.SelectedGenres.Contains("878"))" /> Sci-Fi
-</label>
-<label>
-    <input type="checkbox" name="SelectedGenres" value="18"
-           checked="@(Model.SelectedGenres.Contains("18"))" /> Drama
-</label>
-<label>
-    <input type="checkbox" name="SelectedGenres" value="16"
-           checked="@(Model.SelectedGenres.Contains("16"))" /> Animation
-</label>
-<label>
-    <input type="checkbox" name="SelectedGenres" value="53"
-           checked="@(Model.SelectedGenres.Contains("53"))" /> Thriller
-</label>
+<div class="filter-grid">
+    <div class="genre-section">
+        <label class="section-title">Select Genres</label>
+        <div class="chips-container">
+            @{
+                var genreMap = new Dictionary<string, string> {
+                        {"28", "Action"},
+                        {"12", "Adventure"},
+                        {"16", "Animation"},
+                        {"35", "Comedy"},
+                        {"80", "Crime"},
+                        {"99", "Documentary"},
+                        {"18", "Drama"},
+                        {"10751", "Family"},
+                        {"14", "Fantasy"},
+                        {"36", "History"},
+                        {"27", "Horror"},
+                        {"10402", "Music"},
+                        {"9648", "Mystery"},
+                        {"10749", "Romance"},
+                        {"878", "Sci-Fi"},
+                        {"53", "Thriller"},
+                        {"10752", "War"},
+                        {"37", "Western"}
+                        };
+            }
+            @foreach (var genre in genreMap)
+            {
+                <label class="genre-chip">
+                    <input type="checkbox" name="SelectedGenres" value="@genre.Key"
+                           checked="@(Model.SelectedGenres.Contains(genre.Key))" />
+                    <span>@genre.Value</span>
+                </label>
+            }
+        </div>
+    </div>
 
-<select name="MinRating">
-    <option value="0">Any</option>
-    <option value="6" selected="@(Model.MinRating == "6")">6+</option>
-    <option value="7" selected="@(Model.MinRating == "7")">7+</option>
-    <option value="8" selected="@(Model.MinRating == "8")">8+</option>
-</select>
+    <div class="select-section">
+        <div class="input-group">
+            <label>Minimum Rating</label>
+            <select name="MinRating" class="custom-select">
+                <option value="0">Any Rating</option>
+                <option value="7">⭐ 7.0+</option>
+                <option value="8">⭐ 8.0+</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Sort By</label>
+            <select name="SortBy" class="custom-select">
+                <option value="popularity.desc">Popularity</option>
+                <option value="vote_average.desc">Top Rated</option>
+            </select>
+        </div>
+    </div>
+</div>
 
-<select name="YearFrom">
-    <option value="">Any</option>
-    <option value="2020" selected="@(Model.YearFrom == "2020")">2020s</option>
-    <option value="2010" selected="@(Model.YearFrom == "2010")">2010s</option>
-    <option value="2000" selected="@(Model.YearFrom == "2000")">2000s</option>
-    <option value="1990" selected="@(Model.YearFrom == "1990")">1990s</option>
-</select>
+<style>
+    .chips-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 15px 0;
+        justify-content: center;
+    }
 
-<select name="SortBy">
-    <option value="popularity.desc" selected="@(Model.SortBy == "popularity.desc")">Popularity</option>
-    <option value="vote_average.desc" selected="@(Model.SortBy == "vote_average.desc")">Highest Rated</option>
-    <option value="release_date.desc" selected="@(Model.SortBy == "release_date.desc")">Newest First</option>
-</select>
+    .genre-chip input {
+        display: none;
+    }
+
+    .genre-chip span {
+        display: inline-block;
+        padding: 8px 20px;
+        border: 1px solid var(--khaki-beige);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+        background: transparent;
+        color: var(--khaki-beige);
+    }
+
+    .genre-chip input:checked + span {
+        background: var(--flag-red);
+        border-color: var(--flag-red);
+        color: white;
+    }
+
+    .custom-select {
+        background: #1a1a1a;
+        color: white;
+        border: 1px solid var(--khaki-beige);
+        padding: 10px;
+        border-radius: 8px;
+        width: 100%;
+    }
+
+    .section-title {
+        font-weight: bold;
+        color: var(--porcelain);
+        margin-bottom: 10px;
+        display: block;
+    }
+</style>
