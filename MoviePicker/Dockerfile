@@ -4,9 +4,10 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["MoviePicker.csproj", "."]
-RUN dotnet restore
+COPY ["MoviePicker/MoviePicker.csproj", "MoviePicker/"]
+RUN dotnet restore "MoviePicker/MoviePicker.csproj"
 COPY . .
+WORKDIR "/src/MoviePicker"
 RUN dotnet build -c Release -o /app/build
 
 FROM build AS publish
