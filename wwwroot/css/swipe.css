@@ -1,4 +1,4 @@
-﻿.swipe-page {
+.swipe-page {
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -27,26 +27,34 @@
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     overflow: hidden;
-    transform: translateX(0) rotate(0deg);
-    opacity: 1;
-    transition: transform 2s ease-out, opacity 2s ease-out;
+    transition: transform 0.25s ease-in !important;
+    z-index: 10;
+    will-change: transform, opacity;
 }
+    .movie-card.active {
+        z-index: 2;
+    }
 
+    .movie-card.next {
+        z-index: 1;
+        transform: scale(0.95);
+        opacity: 1;
+    }
     .movie-card img {
         width: 100%;
         height: 420px;
         object-fit: contain;
     }
 
-    .swipe-right {
-        transform: translateX(200%) rotate(30deg) !important;
-        opacity: 0;
-    }
+.swipe-right {
+    transform: translateX(200%) rotate(20deg) !important;
+    opacity: 1 !important;
+}
 
-    .swipe-left {
-        transform: translateX(-200%) rotate(-30deg) !important;
-        opacity: 0;
-    }
+.swipe-left {
+    transform: translateX(-200%) rotate(-20deg) !important;
+    opacity: 1 !important;
+}
 
 .card-info {
     padding: 1rem;
@@ -74,6 +82,7 @@
     margin-top: 0.5rem;
     color: #1a1a1a; /* Tamna boja teksta na dugmetu */
 }
+
     .see-more-btn:hover {
         background: #f0f0f0;
     }
@@ -207,6 +216,7 @@
         font-size: 1.4rem;
         color: #000;
     }
+
 .modal-meta {
     display: flex;
     gap: 1rem;

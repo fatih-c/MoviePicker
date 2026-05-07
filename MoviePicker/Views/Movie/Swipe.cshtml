@@ -36,7 +36,7 @@
 
     let currentIndex = 0;
     let likedMovies = [];
-    let dislikedMovies = [];
+    let isAnimating = false;
 
     const cardStack = document.getElementById('card-stack');
     const likeBtn = document.getElementById('like-btn');
@@ -45,43 +45,67 @@
     const resultsContainer = document.getElementById('results-container');
     const resultsList = document.getElementById('results-list');
     const modalOverlay = document.getElementById('modal-overlay');
-    const modalTitle = document.getElementById('modal-title');
-    const modalOverview = document.getElementById('modal-overview');
     const modalClose = document.getElementById('modal-close');
 
     function createCard(movie) {
         const card = document.createElement('div');
         card.className = 'movie-card';
+        card.dataset.movieId = movie.id;
         card.innerHTML = `
-            <img src="${movie.fullPosterUrl}" alt="${movie.title}" />
-            <div class="card-info">
-                <h3>${movie.title}</h3>
-                <p>⭐ ${movie.vote_average.toFixed(1)} &nbsp; 📅 ${movie.release_date?.substring(0, 4)}</p>
-                <button class="see-more-btn" data-movie='${JSON.stringify(movie)}'>See More</button>
+            <img src="${movie.fullPosterUrl}" alt="${movie.title}" style="width:100%; height:400px; object-fit:cover;" />
+            <div class="card-info" style="padding:15px; text-align:center;">
+                <h3 style="color:white; margin:0;">${movie.title}</h3>
+                <p style="color:var(--khaki-beige);">⭐ ${movie.vote_average.toFixed(1)} &nbsp; 📅 ${movie.release_date?.substring(0, 4)}</p>
+                <button class="see-more-btn btn-outline" style="padding:5px 15px; font-size:0.9rem;">See More</button>
             </div>
         `;
         return card;
     }
 
-    function showCurrentCard() {
+       function showCurrentCard() {
         if (currentIndex >= movies.length) {
             showResults();
             return;
         }
-        cardStack.innerHTML = '';
-        const card = createCard(movies[currentIndex]);
-        cardStack.appendChild(card);
+
+        if (cardStack.children.length === 0) {
+            const currentCard = createCard(movies[currentIndex]);
+            currentCard.classList.add('active');
+            cardStack.appendChild(currentCard);
+        }
+
+        if (currentIndex + 1 < movies.length && cardStack.children.length < 2) {
+            const nextCard = createCard(movies[currentIndex + 1]);
+            nextCard.classList.add('next');
+            cardStack.insertBefore(nextCard, cardStack.firstChild);
+        }
     }
 
     function swipe(liked) {
-        if (currentIndex >= movies.length) return;
-        if (liked) {
-            likedMovies.push(movies[currentIndex]);
-        } else {
-            dislikedMovies.push(movies[currentIndex]);
-        }
-        currentIndex++;
-        showCurrentCard();
+        if (isAnimating || currentIndex >= movies.length) return;
+
+        const currentCard = cardStack.querySelector('.active');
+        if (!currentCard) return;
+
+        isAnimating = true;
+        currentCard.classList.add(liked ? 'swipe-right' : 'swipe-left');
+
+        if (liked) likedMovies.push(movies[currentIndex]);
+
+        setTimeout(() => {
+            currentCard.remove(); 
+            currentIndex++;
+
+            const nextCard = cardStack.querySelector('.next');
+            if (nextCard) {
+                nextCard.classList.remove('next');
+                nextCard.classList.add('active');
+            }
+
+            showCurrentCard();
+
+            isAnimating = false;
+        }, 250); 
     }
 
     function showResults() {
@@ -89,52 +113,49 @@
         resultsContainer.style.display = 'block';
 
         if (likedMovies.length === 0) {
-            resultsList.innerHTML = '<p>You did not like any movies. Try different filters!</p>';
+            resultsList.innerHTML = '<p style="color:white; text-align:center;">Niste lajkovali nijedan film.</p>';
             return;
         }
 
+        resultsList.innerHTML = '';
         likedMovies.forEach(movie => {
-            const card = createCard(movie);
-            card.className = 'result-card';
-            resultsList.appendChild(card);
+            const resultItem = createCard(movie);
+            resultItem.className = 'result-card mb-3';
+            resultItem.style.position = 'relative'; 
+            resultsList.appendChild(resultItem);
         });
     }
 
     likeBtn.addEventListener('click', () => swipe(true));
     dislikeBtn.addEventListener('click', () => swipe(false));
 
-      document.addEventListener('click', function(event) {
-        if (event.target.closest('.see-more-btn')) {
-            const btn = event.target.closest('.see-more-btn');
-            const movie = JSON.parse(btn.dataset.movie);
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('see-more-btn')) {
+            const card = event.target.closest('[data-movie-id]');
+            const movieId = parseInt(card.dataset.movieId);
+            const movie = movies.find(m => m.id === movieId);
 
-            document.getElementById('modal-content').innerHTML = `
-                <div class="modal-poster">
-                    <img src="${movie.fullPosterUrl}" alt="${movie.title}" />
-                </div>
-                <div class="modal-details">
-                    <h2>${movie.title}</h2>
-                    <div class="modal-meta">
-                        <span class="modal-rating">⭐ ${movie.vote_average.toFixed(1)}</span>
-                        <span class="modal-year">📅 ${movie.release_date?.substring(0, 4)}</span>
+            if (movie) {
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="modal-poster">
+                        <img src="${movie.fullPosterUrl}" alt="${movie.title}" style="max-width:100%; border-radius:10px;" />
                     </div>
-                    <p class="modal-overview">${movie.overview}</p>
-                </div>
-            `;
-
-            modalOverlay.style.display = 'flex';
+                    <div class="modal-details" style="color:white; padding:20px;">
+                        <h2>${movie.title}</h2>
+                        <div class="modal-meta" style="margin-bottom:15px;">
+                            <span class="modal-rating">⭐ ${movie.vote_average.toFixed(1)}</span> |
+                            <span class="modal-year">📅 ${movie.release_date?.substring(0, 4)}</span>
+                        </div>
+                        <p class="modal-overview">${movie.overview}</p>
+                    </div>
+                `;
+                modalOverlay.style.display = 'flex';
+            }
         }
     });
 
-    modalClose.addEventListener('click', () => {
-        modalOverlay.style.display = 'none';
-    });
-
-    modalOverlay.addEventListener('click', function(event) {
-        if (event.target === modalOverlay) {
-            modalOverlay.style.display = 'none';
-        }
-    });
+    modalClose.addEventListener('click', () => modalOverlay.style.display = 'none');
+    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.style.display = 'none'; });
 
     showCurrentCard();
 </script>

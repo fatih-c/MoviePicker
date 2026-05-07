@@ -7,7 +7,7 @@
 <div class="solo-container">
     <div class="text-center mb-5">
         <h2 class="display-5 fw-bold" style="color: var(--flag-red);">SOLO SEARCH</h2>
-        <p style="color: var(--khaki-beige);">Podesi filtere i pronađi savršen film za sebe.</p>
+        <p style="color: var(--khaki-beige);">Set filters and find a perfect movie for you.</p>
     </div>
 
     <div class="filter-card p-4 p-md-5">
@@ -15,9 +15,6 @@
             @await Html.PartialAsync("_FilterForm", Model)
 
             <div class="d-grid gap-3 mt-5">
-               <!-- <button type="submit" class="btn-main">
-                    Find Movies List
-                </button> -->
 
                 <button type="submit" asp-action="Swipe" asp-controller="Movie" class="btn-outline">
                     Start Swiping Mode

@@ -31,14 +31,13 @@
 
 @section Scripts {
     <script>
-        const movies = @Html.Raw(Json.Serialize(ViewBag.Movies));
-        console.log("Movies count:", movies.length);//za testiranje
+                const movies = @Html.Raw(Json.Serialize(ViewBag.Movies));
         const roomCode = "@Model.Code";
         const memberId = @Html.Raw(Json.Serialize(ViewBag.MemberId));
 
         let currentIndex = 0;
         let likedMovies = [];
-        let dislikedMovies = [];
+        let isAnimating = false;
 
         const cardStack = document.getElementById('card-stack');
         const likeBtn = document.getElementById('like-btn');
@@ -57,47 +56,83 @@
                 <div class="card-info">
                     <h3>${movie.title}</h3>
                     <p>⭐ ${movie.vote_average.toFixed(1)} &nbsp; 📅 ${movie.release_date?.substring(0, 4)}</p>
-                    <button class="see-more-btn" data-movie='${JSON.stringify(movie)}'>See More</button>
+                    <button class="see-more-btn">See More</button>
                 </div>
             `;
             return card;
         }
 
+        function openModal(movie) {
+            document.getElementById('modal-content').innerHTML = `
+                <div class="modal-poster">
+                    <img src="${movie.fullPosterUrl}" alt="${movie.title}" />
+                </div>
+                <div class="modal-details">
+                    <h2>${movie.title}</h2>
+                    <div class="modal-meta">
+                        <span class="modal-rating">⭐ ${movie.vote_average.toFixed(1)}</span>
+                        <span class="modal-year">📅 ${movie.release_date?.substring(0, 4)}</span>
+                    </div>
+                    <p class="modal-overview">${movie.overview}</p>
+                </div>
+            `;
+            modalOverlay.style.display = 'flex';
+        }
         function showCurrentCard() {
             if (currentIndex >= movies.length) {
                 finishSwiping();
                 return;
             }
-            cardStack.innerHTML = '';
-            cardStack.appendChild(createCard(movies[currentIndex]));
+
+            if (cardStack.children.length === 0) {
+                const currentCard = createCard(movies[currentIndex]);
+                currentCard.classList.add('active');
+                cardStack.appendChild(currentCard);
+            }
+
+            if (currentIndex + 1 < movies.length && cardStack.children.length < 2) {
+                const nextCard = createCard(movies[currentIndex + 1]);
+                nextCard.classList.add('next');
+                cardStack.insertBefore(nextCard, cardStack.firstChild);
+            }
         }
 
-        async function swipe(liked) {
-            if (currentIndex >= movies.length) return;
+        function swipe(liked) {
+            if (isAnimating || currentIndex >= movies.length) return;
+
+            const currentCard = cardStack.querySelector('.active');
+            if (!currentCard) return;
+
+            isAnimating = true;
+
+            currentCard.classList.add(liked ? 'swipe-right' : 'swipe-left');
 
             const movie = movies[currentIndex];
-
-            // Save swipe to database
-            await fetch('/Room/RecordSwipe', {
+            fetch('/Room/RecordSwipe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    memberId: memberId,
-                    movieId: movie.id,
-                    liked: liked
-                })
+                body: JSON.stringify({ memberId: memberId, movieId: movie.id, liked: liked })
             });
 
             if (liked) likedMovies.push(movie);
-            else dislikedMovies.push(movie);
 
-            currentIndex++;
-            showCurrentCard();
+            setTimeout(() => {
+                currentCard.remove(); 
+
+                currentIndex++;
+
+                const nextCard = cardStack.querySelector('.next');
+                if (nextCard) {
+                    nextCard.classList.remove('next');
+                    nextCard.classList.add('active');
+                }
+
+                showCurrentCard();
+                isAnimating = false;
+            }, 250);
         }
 
         async function finishSwiping() {
-            // Tell server this member finished
-            console.log("finishSwiping called for memberId:", memberId);
             await fetch('/Room/FinishSwiping', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -107,16 +142,42 @@
             document.getElementById('waiting-container').style.display = 'block';
         }
 
-        // SignalR for real-time results
+        // See More - only one listener on card-stack
+        cardStack.addEventListener('click', function(e) {
+            if (e.target.classList.contains('see-more-btn')) {
+                openModal(movies[currentIndex]);
+            }
+        });
+
+        // See More on result cards
+        resultsList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('see-more-btn')) {
+                const card = e.target.closest('.result-card');
+                const movieId = parseInt(card.dataset.movieId);
+                const movie = movies.find(m => m.id === movieId);
+                if (movie) openModal(movie);
+            }
+        });
+
+        // Modal close
+        modalClose.addEventListener('click', () => modalOverlay.style.display = 'none');
+        modalOverlay.addEventListener('click', e => {
+            if (e.target === modalOverlay) modalOverlay.style.display = 'none';
+        });
+
+        // SignalR
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/roomHub")
             .build();
 
         connection.on("ShowResults", function(likedMovieIds) {
             swipeContainer.style.display = 'none';
+            document.getElementById('waiting-container').style.display = 'none';
             resultsContainer.style.display = 'block';
 
-            const matchedMovies = movies.filter(m => likedMovieIds.includes(m.id));
+            const matchedMovies = likedMovieIds
+                .map(id => movies.find(m => m.id === id))
+                .filter(m => m != null);
 
             if (matchedMovies.length === 0) {
                 resultsList.innerHTML = '<p>No movies matched. Try again!</p>';
@@ -126,6 +187,7 @@
             matchedMovies.forEach(movie => {
                 const card = createCard(movie);
                 card.className = 'result-card';
+                card.dataset.movieId = movie.id;
                 resultsList.appendChild(card);
             });
         });
@@ -133,31 +195,6 @@
         connection.start()
             .then(() => connection.invoke("JoinRoomGroup", roomCode))
             .catch(err => console.error(err));
-
-        // Modal
-        document.addEventListener('click', function(event) {
-            if (event.target.closest('.see-more-btn')) {
-                const btn = event.target.closest('.see-more-btn');
-                const movie = JSON.parse(btn.dataset.movie);
-                document.getElementById('modal-content').innerHTML = `
-                    <div class="modal-poster">
-                        <img src="${movie.fullPosterUrl}" alt="${movie.title}" />
-                    </div>
-                    <div class="modal-details">
-                        <h2>${movie.title}</h2>
-                        <div class="modal-meta">
-                            <span class="modal-rating">⭐ ${movie.vote_average.toFixed(1)}</span>
-                            <span class="modal-year">📅 ${movie.release_date?.substring(0, 4)}</span>
-                        </div>
-                        <p class="modal-overview">${movie.overview}</p>
-                    </div>
-                `;
-                modalOverlay.style.display = 'flex';
-            }
-        });
-
-        modalClose.addEventListener('click', () => modalOverlay.style.display = 'none');
-        modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) modalOverlay.style.display = 'none'; });
 
         likeBtn.addEventListener('click', () => swipe(true));
         dislikeBtn.addEventListener('click', () => swipe(false));

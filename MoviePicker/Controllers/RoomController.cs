@@ -52,25 +52,26 @@ namespace MoviePicker.Controllers
 
             return RedirectToAction("Lobby", new { code = room.Code });
         }
+        /* [HttpPost]
+         public async Task<IActionResult> SaveFilters(MovieFilterViewModel filters, string code)
+         {
+             var room = await _roomService.GetRoomWithMembersAsync(code);
+             if (room == null) return NotFound();
+
+             var memberId = HttpContext.Session.GetInt32("MemberId");
+             var member = room.Members.FirstOrDefault(m => m.Id == memberId);
+             if (member == null || !member.IsCreator) return RedirectToAction("Join");
+
+             await _roomService.SaveFiltersAsync(code, filters);
+
+             return RedirectToAction("Lobby", new { code });
+         }*/
         [HttpPost]
-        public async Task<IActionResult> SaveFilters(MovieFilterViewModel filters, string code)
-        {
-            var room = await _roomService.GetRoomWithMembersAsync(code);
-            if (room == null) return NotFound();
-
-            var memberId = HttpContext.Session.GetInt32("MemberId");
-            var member = room.Members.FirstOrDefault(m => m.Id == memberId);
-            if (member == null || !member.IsCreator) return RedirectToAction("Join");
-
-            await _roomService.SaveFiltersAsync(code, filters);
-
-            return RedirectToAction("Lobby", new { code });
-        }
-        [HttpPost]
-        public async Task<IActionResult> Start(string code)
+        public async Task<IActionResult> Start(MovieFilterViewModel filters, string code)
         {
             var memberId = HttpContext.Session.GetInt32("MemberId");
             if (memberId == null) return RedirectToAction("Join");
+            await _roomService.SaveFiltersAsync(code, filters);
 
             await _roomService.StartRoomAsync(code, memberId.Value);
 
